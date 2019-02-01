@@ -126,7 +126,7 @@ class DocumentationController
         }
 
         // get page content
-        $page = $page ?: 'installation';
+        $page = $page ?: 'home';
         $content = $this->docs->getPage($product, $version, $page);
 
         // ensure page has content
