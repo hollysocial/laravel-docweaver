@@ -11,6 +11,8 @@ use ReliQArts\Docweaver\Helpers\Config;
 use ReliQArts\Docweaver\Helpers\Markdown;
 use ReliQArts\Docweaver\Traits\HandlesFiles;
 
+use Laravel\Spark\Spark;
+
 class Documentation
 {
     use HandlesFiles;
@@ -109,13 +111,13 @@ class Documentation
         $this->currentProduct = $product;
         $pageCacheKey = "{$this->cacheKey}.{$product->key}.{$version}.{$page}";
 
-        return $this->cache->remember($pageCacheKey, 5, function () use ($product, $version, $page) {
+        //return $this->cache->remember($pageCacheKey, 5, function () use ($product, $version, $page) {
             $path = "{$product->getDir()}/{$version}/{$page}.md";
 
             if ($this->files->exists($path)) {
                 return $this->replaceLinks($version, Markdown::parse($this->files->get($path)));
             }
-        });
+        //});
     }
 
     /**
@@ -133,6 +135,11 @@ class Documentation
         if (!empty($this->currentProduct)) {
             $content = str_replace('docs/{{version}}', "${routePrefix}/{$this->currentProduct->key}/${version}", $content);
         }
+        
+        // Replace the app name
+        $content = str_replace('{{appname}}', '<span class="tutorial-appname">'.config('app.name').'</span>', $content);
+        $content = str_replace('{{teamstring}}', '<span class="tutorial-teamstring">'.Spark::teamString().'</span>', $content);
+        $content = str_replace('{{uc_teamstring}}', '<span class="tutorial-teamstring">'.ucfirst(Spark::teamString()).'</span>', $content);
 
         return str_replace('{{version}}', $version, $content);
     }
